@@ -1,0 +1,60 @@
+.journal-page { display: flex; flex-direction: column; gap: 1.5rem; }
+
+.page-header { margin-bottom: -0.25rem; }
+.page-header h1 { margin-bottom: 4px; }
+.page-sub { font-size: 14px; color: var(--ink-muted); }
+
+/* WRITE CARD */
+.write-card { display: flex; flex-direction: column; gap: 1.25rem; }
+
+/* MOOD */
+.mood-section {}
+.mood-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 0; }
+.mood-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 99px;
+  background: var(--cream); border: 0.5px solid var(--border-strong);
+  font-family: var(--font-body); font-size: 13px; font-weight: 500;
+  color: var(--ink-soft); cursor: pointer;
+  transition: all 0.15s;
+}
+.mood-btn:hover { background: var(--cream-dark); border-color: var(--sage-light); }
+.mood-btn--active { background: #DEF0E5; border-color: var(--sage); color: var(--sage-dark); }
+.mood-emoji { font-size: 16px; }
+.mood-label { font-size: 13px; }
+
+/* TEXTAREA */
+.journal-textarea {
+  width: 100%; padding: 12px 14px;
+  font-family: var(--font-body); font-size: 14px;
+  color: var(--ink); line-height: 1.7;
+  background: var(--cream); border: 0.5px solid var(--border-strong);
+  border-radius: var(--radius-md); outline: none; resize: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.journal-textarea:focus {
+  border-color: var(--sage);
+  box-shadow: 0 0 0 3px rgba(122,158,135,0.15);
+}
+.journal-textarea::placeholder { color: var(--ink-faint); }
+
+.textarea-footer {
+  display: flex; align-items: center;
+  justify-content: space-between; margin-top: 8px; min-height: 20px;
+}
+.char-count { font-size: 12px; color: var(--ink-faint); margin-left: auto; }
+.char-count--warn { color: var(--rose); }
+.error-msg { font-size: 13px; color: var(--rose); }
+
+.submit-btn { margin-top: 0.25rem; padding: 13px; font-size: 15px; }
+
+/* HISTORY */
+.history-list { display: flex; flex-direction: column; gap: 10px; }
+.history-card { padding: 1rem 1.25rem; }
+.history-top {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 8px; margin-bottom: 0.75rem;
+}
+.history-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.history-date { font-size: 12px; color: var(--ink-muted); }
+.history-text { font-size: 13px; color: var(--ink-soft); line-height: 1.65; }
