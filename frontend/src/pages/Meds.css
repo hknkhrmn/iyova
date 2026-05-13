@@ -4,10 +4,8 @@
 .page-sub { font-size: 14px; color: var(--ink-muted); }
 
 /* PROGRESS */
-.progress-card {}
 .progress-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem; }
 .progress-label { font-size: 14px; font-weight: 500; color: var(--ink-soft); }
-.progress-count {}
 .progress-taken { font-family: var(--font-display); font-size: 1.5rem; color: var(--sky); }
 .progress-total { font-size: 14px; color: var(--ink-muted); }
 .progress-bar-bg { height: 6px; background: var(--cream-dark); border-radius: 99px; overflow: hidden; }
@@ -18,7 +16,6 @@
 .progress-complete { font-size: 13px; color: var(--sage-dark); margin-top: 0.625rem; font-weight: 500; }
 
 /* ADD FORM */
-.add-form-card {}
 .add-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .form-group { display: flex; flex-direction: column; }
 .form-group--full { grid-column: 1 / -1; }

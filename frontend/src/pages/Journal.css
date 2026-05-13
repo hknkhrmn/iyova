@@ -1,3 +1,4 @@
+
 .journal-page { display: flex; flex-direction: column; gap: 1.5rem; }
 
 .page-header { margin-bottom: -0.25rem; }
@@ -8,7 +9,6 @@
 .write-card { display: flex; flex-direction: column; gap: 1.25rem; }
 
 /* MOOD */
-.mood-section {}
 .mood-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 0; }
 .mood-btn {
   display: flex; align-items: center; gap: 6px;
