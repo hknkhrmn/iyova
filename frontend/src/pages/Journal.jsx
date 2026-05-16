@@ -1,190 +1,173 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { getEntries, createEntry, deleteEntry } from '../services/api';
 import './Journal.css';
 
 const MOODS = [
-  { key: 'İyi',    emoji: '😊' },
-  { key: 'Karışık', emoji: '😐' },
-  { key: 'Yorgun', emoji: '😔' },
-  { key: 'Kaygılı', emoji: '😰' },
-  { key: 'Kötü',   emoji: '😞' },
+  { key:'İyi',    emoji:'😊', color:'#d8fbe0', border:'#8ee4af' },
+  { key:'Karışık', emoji:'😐', color:'#fef9e7', border:'#f7d070' },
+  { key:'Yorgun', emoji:'😔', color:'#e8f4fd', border:'#90c8f0' },
+  { key:'Kaygılı', emoji:'😰', color:'#fce8e8', border:'#f09090' },
+  { key:'Kötü',   emoji:'😞', color:'#f0e8fc', border:'#c090f0' },
 ];
+
+const container = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.07 } },
+};
+const fadeItem = {
+  hidden: { opacity: 0, y: 14 },
+  show:   { opacity: 1, y: 0, transition: { duration: 0.4, ease:[0.4,0,0.2,1] } },
+};
 
 export default function Journal() {
   const navigate = useNavigate();
-  const [text, setText] = useState('');
-  const [mood, setMood] = useState(null);
-  const [entries, setEntries] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [text, setText]         = useState('');
+  const [mood, setMood]         = useState(null);
+  const [entries, setEntries]   = useState([]);
+  const [loading, setLoading]   = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError]       = useState('');
 
-  useEffect(() => {
-    fetchEntries();
-  }, []);
+  useEffect(() => { fetchEntries(); }, []);
 
   async function fetchEntries() {
-    try {
-      const res = await getEntries();
-      setEntries(res.data);
-    } catch {
-      // backend henüz bağlı değil
-    } finally {
-      setLoading(false);
-    }
+    try { const r = await getEntries(); setEntries(r.data); }
+    catch (err) { console.error('Girişler alınırken hata oluştu:', err); }
+    finally { setLoading(false); }
   }
 
   async function handleSubmit() {
-    if (text.trim().length < 20) {
-      setError('Lütfen en az 20 karakter yaz.');
-      return;
-    }
-    setError('');
-    setSubmitting(true);
+    if (text.trim().length < 20) { setError('Lütfen en az 20 karakter yaz.'); return; }
+    setError(''); setSubmitting(true);
     try {
       await createEntry({ text: text.trim(), mood });
-      setText('');
-      setMood(null);
+      setText(''); setMood(null);
       await fetchEntries();
       navigate('/analysis');
-    } catch {
-      setError('Giriş kaydedilemedi. Backend bağlantısı kontrol edilsin.');
-    } finally {
-      setSubmitting(false);
-    }
+    } catch { setError('Giriş kaydedilemedi. Backend bağlantısını kontrol et.'); }
+    finally  { setSubmitting(false); }
   }
 
   async function handleDelete(id) {
     if (!confirm('Bu girişi silmek istiyor musun?')) return;
-    try {
-      await deleteEntry(id);
-      setEntries((prev) => prev.filter((e) => e._id !== id));
-    } catch {
-      alert('Silme işlemi başarısız.');
-    }
+    try { await deleteEntry(id); setEntries(p => p.filter(e => e._id !== id)); }
+    catch { alert('Silme başarısız.'); }
   }
 
   return (
-    <div className="journal-page fade-up">
-      <div className="page-header">
-        <h1>Günlük</h1>
-        <p className="page-sub">Bugünü yaz, zihnini analiz et.</p>
-      </div>
+    <motion.div className="journal-page" variants={container} initial="hidden" animate="show">
+      {/* HEADER */}
+      <motion.div variants={fadeItem} className="page-header">
+        <p className="section-label">Günlük</p>
+        <h1 className="page-title">Bugünü Anlat</h1>
+        <p className="page-sub">Yazdıkça hafiflersin. Zihnin burada güvende.</p>
+      </motion.div>
 
       {/* WRITE CARD */}
-      <div className="card write-card fade-up fade-up-1">
+      <motion.div variants={fadeItem} className="write-card glass-card">
         {/* MOOD */}
         <div className="mood-section">
-          <label className="field-label">Nasıl hissediyorsun?</label>
+          <p className="section-label" style={{ marginBottom:'0.75rem' }}>Şu an nasıl hissediyorsun?</p>
           <div className="mood-row">
-            {MOODS.map((m) => (
-              <button
+            {MOODS.map(m => (
+              <motion.button
                 key={m.key}
                 className={`mood-btn ${mood === m.key ? 'mood-btn--active' : ''}`}
+                style={mood === m.key ? { background: m.color, borderColor: m.border } : {}}
                 onClick={() => setMood(mood === m.key ? null : m.key)}
+                whileHover={{ scale: 1.06, y: -2 }}
+                whileTap={{ scale: 0.96 }}
                 type="button"
               >
                 <span className="mood-emoji">{m.emoji}</span>
                 <span className="mood-label">{m.key}</span>
-              </button>
+              </motion.button>
             ))}
           </div>
         </div>
 
-        <div className="divider" />
+        <div className="divider-mint" />
 
-        {/* TEXT */}
+        {/* TEXTAREA */}
         <div>
-          <label className="field-label" htmlFor="journal-text">Bugünü anlat</label>
+          <p className="section-label" style={{ marginBottom:'0.75rem' }}>Bugününü yaz</p>
           <textarea
-            id="journal-text"
-            className="journal-textarea"
+            className="textarea-mint journal-textarea"
             placeholder="Bugün neler hissettin? Ne yaşadın? Zihninde ne dolaşıyor…"
             value={text}
-            onChange={(e) => { setText(e.target.value); setError(''); }}
+            onChange={e => { setText(e.target.value); setError(''); }}
             rows={7}
           />
           <div className="textarea-footer">
             {error && <p className="error-msg">{error}</p>}
-            <span className={`char-count ${text.length < 20 ? 'char-count--warn' : ''}`}>
-              {text.length} karakter
+            <span className={`char-count ${text.length < 20 ? 'char-count--warn' : 'char-count--ok'}`}>
+              {text.length} / min 20
             </span>
           </div>
         </div>
 
-        <button
-          className="btn btn-sage btn-full submit-btn"
+        <motion.button
+          className="btn-glow submit-btn"
           onClick={handleSubmit}
           disabled={submitting}
+          whileHover={{ scale: submitting ? 1 : 1.02, y: submitting ? 0 : -2 }}
+          whileTap={{ scale: 0.98 }}
           type="button"
         >
-          {submitting ? (
-            <><div className="spinner" /> Analiz ediliyor…</>
-          ) : (
-            <>
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9.5 2A2.5 2.5 0 0112 4.5v15a2.5 2.5 0 01-4.96-.44l-1.04-7A2.5 2.5 0 018.5 9H9.5"/>
-                <path d="M14.5 2A2.5 2.5 0 0112 4.5v15a2.5 2.5 0 004.96-.44l1.04-7A2.5 2.5 0 0115.5 9H14.5"/>
-              </svg>
-              Analiz Et
-            </>
-          )}
-        </button>
-      </div>
+          {submitting
+            ? <><div className="spinner-mint" style={{ borderTopColor:'#fff', borderColor:'rgba(255,255,255,0.3)' }} /> Analiz ediliyor…</>
+            : <><span>◎</span> Analiz Et</>
+          }
+        </motion.button>
+      </motion.div>
 
       {/* HISTORY */}
-      <div className="fade-up fade-up-2">
-        <p className="section-title">Geçmiş Girişler</p>
+      <motion.div variants={fadeItem}>
+        <p className="section-label" style={{ marginBottom:'1rem' }}>Geçmiş Girişler</p>
         {loading ? (
-          <div className="empty-state"><div className="spinner" /></div>
+          <div className="empty-state"><div className="spinner-mint" /></div>
         ) : entries.length === 0 ? (
           <div className="empty-state">
-            <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
-              <polyline points="14 2 14 8 20 8"/>
-            </svg>
-            <p>Henüz hiç giriş yok.<br />Yukarıdan ilk girişini yapabilirsin.</p>
+            <div className="empty-state-icon">✿</div>
+            <p>Henüz giriş yok.<br />Yukarıdan ilk girişini yapabilirsin.</p>
           </div>
         ) : (
           <div className="history-list">
-            {entries.map((entry) => (
-              <div key={entry._id} className="history-card card">
-                <div className="history-top">
-                  <div className="history-meta">
-                    <span className="history-date">
-                      {new Date(entry.createdAt).toLocaleDateString('tr-TR', {
-                        day: 'numeric', month: 'long', year: 'numeric',
-                        hour: '2-digit', minute: '2-digit',
-                      })}
-                    </span>
-                    {entry.mood && (
-                      <span className="badge badge-sage">
-                        {MOODS.find((m) => m.key === entry.mood)?.emoji} {entry.mood}
+            <AnimatePresence>
+              {entries.map((entry, i) => (
+                <motion.div
+                  key={entry._id}
+                  className="history-card glass-card"
+                  initial={{ opacity:0, y:10 }}
+                  animate={{ opacity:1, y:0 }}
+                  exit={{ opacity:0, x:-20 }}
+                  transition={{ delay: i*0.05, duration:0.35 }}
+                  layout
+                >
+                  <div className="history-top">
+                    <div className="history-meta">
+                      <span className="history-date">
+                        {new Date(entry.createdAt).toLocaleDateString('tr-TR', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' })}
                       </span>
-                    )}
-                    {entry.distortions?.length > 0 && (
-                      <span className="badge badge-purple">{entry.distortions.length} hata</span>
-                    )}
+                      {entry.mood && <span className="badge-mint">{MOODS.find(m=>m.key===entry.mood)?.emoji} {entry.mood}</span>}
+                      {entry.distortions?.length > 0 && <span className="badge-purple">{entry.distortions.length} hata</span>}
+                    </div>
+                    <motion.button
+                      className="delete-btn"
+                      onClick={() => handleDelete(entry._id)}
+                      whileHover={{ scale:1.1 }} whileTap={{ scale:0.9 }}
+                      type="button"
+                    >✕</motion.button>
                   </div>
-                  <button
-                    className="btn btn-danger-ghost btn-sm"
-                    onClick={() => handleDelete(entry._id)}
-                    type="button"
-                    title="Sil"
-                  >
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
-                      <path d="M10 11v6"/><path d="M14 11v6"/>
-                    </svg>
-                  </button>
-                </div>
-                <p className="history-text">{entry.text}</p>
-              </div>
-            ))}
+                  <p className="history-text">{entry.text}</p>
+                </motion.div>
+              ))}
+            </AnimatePresence>
           </div>
         )}
-      </div>
-    </div>
+      </motion.div>
+    </motion.div>
   );
 }
